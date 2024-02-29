@@ -6,6 +6,9 @@ import { Photo } from "../../types";
 export default function HomePage() {
   const [photos, setPopularPhotos] = useState<Photo[]>(popularPhotos);
   const [searchQuery, setSearchQuery] = useState("");
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   useEffect(() => {
     // const fetchPopularPhotos = async () => {
@@ -25,9 +28,16 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
     const fetchSearchResults = async () => {
-      if (!searchQuery) return;
+      if (!searchQuery) {
+        return setPopularPhotos(popularPhotos);
+      }
       try {
+        console.log("fetching search results");
         const res = await axios.get(
           `https://api.unsplash.com/search/photos?page=1&per_page=20&query=${searchQuery}&client_id=${
             import.meta.env.VITE_UNSPLASH_ACCESS_KEY
@@ -38,7 +48,12 @@ export default function HomePage() {
         console.error("Error fetching search results", error);
       }
     };
-    fetchSearchResults();
+
+    const timeoutId = setTimeout(fetchSearchResults, 500);
+
+    setTypingTimeout(timeoutId);
+
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   return (
@@ -53,9 +68,9 @@ export default function HomePage() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <div className="flex flex-wrap gap-4 items-center">
+      <div className="flex flex-wrap gap-4 items-center justify-center">
         {photos.map((photo) => {
-          console.log(photo);
+          // console.log(photo);
           return (
             <img
               key={photo.id}
