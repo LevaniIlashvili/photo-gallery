@@ -18,7 +18,7 @@ export default function HomePage({
   const [typingTimeout, setTypingTimeout] = useState<Timeout | null>(null);
   const [page, setPage] = useState(1);
 
-  const fetchPopularPhotos = async (page) => {
+  const fetchPopularPhotos = async (page: number) => {
     try {
       const res = await axios.get(
         `https://api.unsplash.com/photos?page=${page}&per_page=20&order_by=popular&client_id=${
