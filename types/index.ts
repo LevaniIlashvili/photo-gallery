@@ -10,4 +10,11 @@ export interface Photo {
     raw: string;
     regular: string;
   };
+  height: number;
+  width: number;
+}
+
+export interface PhotoDetails extends Photo {
+  views: number;
+  downloads: number;
 }
