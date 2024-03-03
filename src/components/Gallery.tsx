@@ -26,6 +26,7 @@ export default function Gallery({
           src={photo.urls.regular}
           alt={photo.alt_description}
           onClick={() => setOpenedPhoto(photo.id)}
+          className="hover:opacity-85 transition-opacity duration-300 ease-in-out"
         />
       ))}
     </Masonry>
