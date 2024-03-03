@@ -10,7 +10,6 @@ export const fetchSearchResults = async (
     const cachedPhotos = getCachedPhotos(searchQuery, page);
 
     if (cachedPhotos) {
-      console.log("Using cached search results");
       return cachedPhotos;
     } else {
       console.log("Fetching search results");
@@ -19,7 +18,6 @@ export const fetchSearchResults = async (
           import.meta.env.VITE_UNSPLASH_ACCESS_KEY
         }`
       );
-      console.log(res.data.results);
       cachePhotos(searchQuery, page, res.data.results);
       return res.data.results;
     }

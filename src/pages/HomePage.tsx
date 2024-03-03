@@ -89,10 +89,6 @@ export default function HomePage({
       const clientHeight =
         document.documentElement.clientHeight || window.innerHeight;
 
-      console.log(
-        scrollTop + (scrollHeight - clientHeight) / 3,
-        scrollHeight - clientHeight
-      );
       if (
         !fetching &&
         scrollTop + (scrollHeight - clientHeight) / 3 >=
