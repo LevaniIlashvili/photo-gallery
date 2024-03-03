@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-// import { popularPhotos } from "../../data";
-import { Photo } from "../../types";
 import { fetchSearchResults } from "../apiUtils";
 import Gallery from "../components/Gallery";
 import axios from "axios";
+import { Photo } from "../../types";
 
 type Timeout = ReturnType<typeof setTimeout>;
 
@@ -17,6 +16,7 @@ export default function HomePage({
   const [searchQuery, setSearchQuery] = useState("");
   const [typingTimeout, setTypingTimeout] = useState<Timeout | null>(null);
   const [page, setPage] = useState(1);
+  const [fetching, setFetching] = useState(false);
 
   const fetchPopularPhotos = async (page: number) => {
     try {
@@ -25,7 +25,6 @@ export default function HomePage({
           import.meta.env.VITE_UNSPLASH_ACCESS_KEY
         }`
       );
-      console.log(res.data);
       return res.data;
     } catch (error) {
       console.error("Error fetching popular photos", error);
@@ -65,13 +64,20 @@ export default function HomePage({
   }, [searchQuery]);
 
   const updateHistory = (query: string) => {
-    localStorage.setItem(
-      "searchHistory",
-      JSON.stringify([
-        query,
-        ...JSON.parse(localStorage.getItem("searchHistory") || "[]"),
-      ])
-    );
+    if (!query) return;
+    let history = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+    if (history.includes(query)) {
+      history = [query, ...history.filter((item: string) => item !== query)];
+      localStorage.setItem("searchHistory", JSON.stringify(history));
+    } else {
+      localStorage.setItem(
+        "searchHistory",
+        JSON.stringify([
+          query,
+          ...JSON.parse(localStorage.getItem("searchHistory") || "[]"),
+        ])
+      );
+    }
   };
 
   useEffect(() => {
@@ -83,26 +89,39 @@ export default function HomePage({
       const clientHeight =
         document.documentElement.clientHeight || window.innerHeight;
 
-      console.log("query in handleScroll", searchQuery);
-
-      if (scrollTop >= scrollHeight - clientHeight) {
-        if (searchQuery) {
-          const newPhotos = await fetchSearchResults(searchQuery, page + 1);
-          setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
-          setPage((prevPage) => prevPage + 1);
-        } else {
-          const newPhotos = await fetchPopularPhotos(page + 1);
-          setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
-          setPage((prevPage) => prevPage + 1);
-        }
-        console.log("Scrolled to bottom");
+      console.log(
+        scrollTop + (scrollHeight - clientHeight) / 3,
+        scrollHeight - clientHeight
+      );
+      if (
+        !fetching &&
+        scrollTop + (scrollHeight - clientHeight) / 3 >=
+          scrollHeight - clientHeight
+      ) {
+        setFetching(true);
+        setPage((prevPage) => prevPage + 1);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [searchQuery, page]);
+  }, [fetching]);
+
+  useEffect(() => {
+    if (page === 1) return;
+    const fetchAndSetPhotos = async () => {
+      if (searchQuery) {
+        const newPhotos = await fetchSearchResults(searchQuery, page);
+        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+      } else {
+        const newPhotos = await fetchPopularPhotos(page);
+        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+      }
+      setFetching(false);
+    };
+    fetchAndSetPhotos();
+  }, [page]);
 
   return (
     <main className="py-10">
@@ -111,7 +130,7 @@ export default function HomePage({
           type="text"
           name="search"
           placeholder="ძებნა"
-          className="w-96 mb-10 ml-6 bg-[#eeeeee] hover:bg-[#e9e9e9] focus:bg-white focus:border-gray-200 border p-2 outline-none rounded-md"
+          className="max-w-[80vw] w-96 mb-10 ml-6 bg-[#eeeeee] hover:bg-[#e9e9e9] focus:bg-white focus:border-gray-200 border p-2 outline-none rounded-md"
           value={searchQuery}
           onChange={(e) => setSearchQuery(() => e.target.value)}
         />

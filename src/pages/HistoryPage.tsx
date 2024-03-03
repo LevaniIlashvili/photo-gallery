@@ -11,14 +11,13 @@ export default function HistoryPage({
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
+  const [fetching, setFetching] = useState(false);
 
   const history: string[] = JSON.parse(
     localStorage.getItem("searchHistory") || "[]"
   );
 
   useEffect(() => {
-    if (!query) return;
-
     const handleScroll = async () => {
       const scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop;
@@ -27,18 +26,32 @@ export default function HistoryPage({
       const clientHeight =
         document.documentElement.clientHeight || window.innerHeight;
 
-      if (scrollTop >= scrollHeight - clientHeight) {
-        const newPhotos = await fetchSearchResults(query, page + 1);
-        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+      if (
+        !fetching &&
+        scrollTop + (scrollHeight - clientHeight) / 3 >=
+          scrollHeight - clientHeight
+      ) {
+        setFetching(true);
         setPage((prevPage) => prevPage + 1);
-        console.log("Scrolled to bottom");
       }
     };
 
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [query, page]);
+  }, [fetching]);
+
+  useEffect(() => {
+    if (page === 1) return;
+    const fetchAndSetPhotos = async () => {
+      if (query) {
+        const newPhotos = await fetchSearchResults(query, page);
+        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+      }
+      setFetching(false);
+    };
+    fetchAndSetPhotos();
+  }, [page]);
 
   if (!history.length) return <div>No search history</div>;
 
@@ -49,7 +62,7 @@ export default function HistoryPage({
         {history.map((query, index) => (
           <li
             key={index}
-            className="w-96 cursor-pointer p-2
+            className="max-w-[80vw] w-96 cursor-pointer p-2
           hover:bg-gray-200 rounded-md transition-colors duration-200 ease-in-out
           "
             onClick={async () => {
