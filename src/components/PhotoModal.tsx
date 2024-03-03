@@ -41,28 +41,30 @@ export default function PhotoModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-8"
+      className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center px-8"
       onClick={() => setOpenedPhoto(null)}
     >
       <div
-        className="bg-white h-screen rounded-md flex items-center justify-center gap-4 p-32"
+        className="bg-white h-screen max-w-fit rounded-md flex items-center justify-center gap-4 p-10 max-md:flex-col max-md:p-0"
         onClick={(e) => e.stopPropagation()}
       >
         <img
-          className={`${photo.width > photo.height ? "max-w-2xl" : "max-w-sm"}`}
+          className={`${
+            photo.width > photo.height ? "max-w-2xl" : "max-w-sm"
+          } w-[90%]`}
           src={photo?.urls.regular}
           alt={photo?.alt_description}
         />
-        <div>
-          <div className="flex flex-col">
+        <div className="max-md:flex gap-4">
+          <div className="flex flex-col max-md:items-center">
             <span className="text-gray-500">views</span>
             <span>{photo.views.toLocaleString()}</span>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col max-md:items-center">
             <span className="text-gray-500">likes</span>
             <span>{photo.likes.toLocaleString()}</span>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col max-md:items-center">
             <span className="text-gray-500">downloads</span>
             <span>{photo.downloads.toLocaleString()}</span>
           </div>

@@ -19,4 +19,5 @@
 .my-masonry-grid_column > img {
   width: 100%;
   margin-bottom: 20px;
+  cursor: pointer;
 }
