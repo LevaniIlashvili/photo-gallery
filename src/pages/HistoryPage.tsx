@@ -53,7 +53,8 @@ export default function HistoryPage({
     fetchAndSetPhotos();
   }, [page]);
 
-  if (!history.length) return <div>No search history</div>;
+  if (!history.length)
+    return <div className="p-4 text-lg font-semibold">No search history</div>;
 
   return (
     <div className="p-4">
