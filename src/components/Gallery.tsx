@@ -1,5 +1,6 @@
 import React from "react";
 import { Photo } from "../../types";
+import Masonry from "react-masonry-css";
 
 export default function Gallery({
   photos,
@@ -9,18 +10,24 @@ export default function Gallery({
   setOpenedPhoto: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   return (
-    <div className="flex flex-wrap gap-4 items-center justify-center">
-      {photos.map((photo) => {
-        return (
-          <img
-            className="cursor-pointer"
-            key={photo.id}
-            src={photo.urls.thumb}
-            alt={photo.alt_description}
-            onClick={() => setOpenedPhoto(photo.id)}
-          />
-        );
-      })}
-    </div>
+    <Masonry
+      className="my-masonry-grid"
+      breakpointCols={{
+        default: 3,
+        1100: 3,
+        700: 2,
+        500: 1,
+      }}
+      columnClassName="my-masonry-grid_column"
+    >
+      {photos.map((photo) => (
+        <img
+          key={photo.id}
+          src={photo.urls.regular}
+          alt={photo.alt_description}
+          onClick={() => setOpenedPhoto(photo.id)}
+        />
+      ))}
+    </Masonry>
   );
 }
